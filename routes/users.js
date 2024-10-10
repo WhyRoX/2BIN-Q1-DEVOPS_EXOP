@@ -22,36 +22,7 @@ router.post('/login', (req, res, next) => {
     // User in DB ? -> return the record of the user if found
     const userFound = User.find(req.body.userLogin);
     console.log("User found" + JSON.stringify(userFound));
-    if (userFound) {
-        if (userFound.active == false) {
-            req.session.errors = "Compte désactivé";
-            res.redirect('/users');
-        }
-        else {
-            if (bcrypt.compareSync(req.body.userPassword, userFound.password)) {
-                console.log("password correct");
-                req.session.login = req.body.userLogin;
-                req.session.connected = true;
-                if (userFound.admin) {
-                    req.session.admin = true;
-                    res.redirect('/admin');
-                } else {
-                    req.session.admin = false;
-                    res.redirect('/members');
-                }
-            }
-            else {
-                console.log("bad password");
-                req.session.errors = "Mot de passe incorrect";
-                res.redirect('/users');
-            }
-        }
-    }
-    else {
-        console.log("bad user");
-        req.session.errors = "Utilisateur inconnu";
-        res.redirect('/users');
-    }
+    handleUserAuthentication(userFound, req, res);
 });
 
 router.get('/logout', (req, res, next) => {
@@ -96,3 +67,60 @@ router.post('/add', (req, res, next) => {
 });
 
 module.exports = router;
+
+function handleUserAuthentication(userFound, req, res) {
+    if (userFound) {
+        if (userFound.active == false) {
+            processDisabledAccount(req, res);
+        }
+        else {
+            if (bcrypt.compareSync(req.body.userPassword, userFound.password)) {
+                handleSuccessfulLogin(req);
+                if (userFound.admin) {
+                    processAdminLogin(req, res);
+                } else {
+                    handleNonAdminUser(req, res);
+                }
+            }
+            else {
+                handleIncorrectPassword(req, res);
+            }
+        }
+    }
+    else {
+        handleUnknownUser(req, res);
+    }
+}
+
+function processDisabledAccount(req, res) {
+    req.session.errors = "Compte désactivé";
+    res.redirect('/users');
+}
+
+function handleSuccessfulLogin(req) {
+    console.log("password correct");
+    req.session.login = req.body.userLogin;
+    req.session.connected = true;
+}
+
+function processAdminLogin(req, res) {
+    req.session.admin = true;
+    res.redirect('/admin');
+}
+
+function handleNonAdminUser(req, res) {
+    req.session.admin = false;
+    res.redirect('/members');
+}
+
+function handleIncorrectPassword(req, res) {
+    console.log("bad password");
+    req.session.errors = "Mot de passe incorrect";
+    res.redirect('/users');
+}
+
+function handleUnknownUser(req, res) {
+    console.log("bad user");
+    req.session.errors = "Utilisateur inconnu";
+    res.redirect('/users');
+}
