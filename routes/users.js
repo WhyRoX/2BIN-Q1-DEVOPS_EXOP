@@ -61,12 +61,16 @@ router.post('/add', (req, res, next) => {
         res.redirect('/users');
     }
     else {
-        req.session.errors = errors;
-        res.redirect('/users/register');
+        WrongLogin(req, errors, res);
     }
 });
 
 module.exports = router;
+
+function WrongLogin(req, errors, res) {
+    req.session.errors = errors;
+    res.redirect('/users/register');
+}
 
 function handleUserAuthentication(userFound, req, res) {
     if (userFound) {
