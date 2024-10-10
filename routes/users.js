@@ -41,6 +41,12 @@ router.get('/register', (req, res, next) => {
 router.post('/add', (req, res, next) => {
     console.log("USERS ADD");
     // validation 
+    addPost(req, res);
+});
+
+module.exports = router;
+
+function addPost(req, res) {
     let errors = [];
     if (!validator.isLength(req.body.userName, { min: 3, max: 100 })) errors.push("Le nom doit avoir 3 caractères minimum");
     if (!validator.isAlphanumeric(req.body.userName)) errors.push("Le nom doit contenir uniquement des caractères alphanumériques");
@@ -64,9 +70,7 @@ router.post('/add', (req, res, next) => {
         req.session.errors = errors;
         res.redirect('/users/register');
     }
-});
-
-module.exports = router;
+}
 
 function handleUserAuthentication(userFound, req, res) {
     if (userFound) {
