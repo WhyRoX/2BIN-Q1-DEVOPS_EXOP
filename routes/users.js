@@ -52,13 +52,7 @@ router.post('/add', (req, res, next) => {
     if (req.body.userPassword != req.body.userPasswordConfirmation) errors.push("Les mot de passes ne correspondent pas");
     if (User.find(req.body.userEmail)) errors.push("Email/Utilisateur déjà présent en DB");
     if (errors.length == 0) {
-        User.save({
-            name: req.body.userName,
-            firstname: req.body.userFirstname,
-            email: req.body.userEmail,
-            password: bcrypt.hashSync(req.body.userPassword, saltRounds)
-        });
-        res.redirect('/users');
+        saveUser(req, res);
     }
     else {
         req.session.errors = errors;
@@ -67,6 +61,16 @@ router.post('/add', (req, res, next) => {
 });
 
 module.exports = router;
+
+function saveUser(req, res) {
+    User.save({
+        name: req.body.userName,
+        firstname: req.body.userFirstname,
+        email: req.body.userEmail,
+        password: bcrypt.hashSync(req.body.userPassword, saltRounds)
+    });
+    res.redirect('/users');
+}
 
 function handleUserAuthentication(userFound, req, res) {
     if (userFound) {
