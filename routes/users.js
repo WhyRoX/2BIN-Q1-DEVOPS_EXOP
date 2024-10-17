@@ -58,6 +58,14 @@ function addPost(req, res) {
     if (req.body.userPassword != req.body.userPasswordConfirmation) errors.push("Les mot de passes ne correspondent pas");
     if (User.find(req.body.userEmail)) errors.push("Email/Utilisateur déjà présent en DB");
     if (errors.length == 0) {
+        saveUserAndRedirect();
+    }
+    else {
+        req.session.errors = errors;
+        res.redirect('/users/register');
+    }
+
+    function saveUserAndRedirect() {
         User.save({
             name: req.body.userName,
             firstname: req.body.userFirstname,
@@ -65,10 +73,6 @@ function addPost(req, res) {
             password: bcrypt.hashSync(req.body.userPassword, saltRounds)
         });
         res.redirect('/users');
-    }
-    else {
-        req.session.errors = errors;
-        res.redirect('/users/register');
     }
 }
 
