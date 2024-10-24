@@ -29,6 +29,7 @@ router.get('/logout', (req, res, next) => {
     logout(req, res);
 });
 
+//route register
 router.get('/register', (req, res, next) => {
     console.log("USERS REGISTER");
     res.render('users/register', { errors: req.session.errors });
