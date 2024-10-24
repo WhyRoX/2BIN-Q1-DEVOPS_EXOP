@@ -26,9 +26,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.get('/logout', (req, res, next) => {
-    console.log("USERS LOGOUT");
-    req.session.destroy();
-    res.redirect('/users');
+    logout(req, res);
 });
 
 router.get('/register', (req, res, next) => {
@@ -45,6 +43,12 @@ router.post('/add', (req, res, next) => {
 });
 
 module.exports = router;
+
+function logout(req, res) {
+    console.log("USERS LOGOUT");
+    req.session.destroy();
+    res.redirect('/users');
+}
 
 function addPost(req, res) {
     let errors = [];
